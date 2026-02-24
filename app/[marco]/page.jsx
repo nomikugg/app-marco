@@ -12,6 +12,10 @@ export default function MarcoPage() {
   if (!marcosValidos.includes(marco)) {
     notFound()
   }
+  //estado de fondo
+  const [darkMode, setDarkMode] = useState(false)
+
+
 
   const stageRef = useRef()
   const fileInputRef = useRef(null)
@@ -21,8 +25,26 @@ export default function MarcoPage() {
 
   const [scale, setScale] = useState(1)
   const [rotation, setRotation] = useState(0)
+
+
+  const [stageSize, setStageSize] = useState(800)
+
   const [position, setPosition] = useState({ x: 400, y: 400 })
 
+
+  // responsive telefono
+  useEffect(() => {
+    const updateSize = () => {
+        const size = Math.min(window.innerWidth - 40, 800)
+        setStageSize(size)
+        setPosition({ x: size / 2, y: size / 2 })
+    }
+
+    updateSize()
+    window.addEventListener("resize", updateSize)
+
+    return () => window.removeEventListener("resize", updateSize)
+  }, [])
   useEffect(() => {
     const frameImg = new window.Image()
     frameImg.src = `/${marco}.png`
@@ -60,7 +82,17 @@ export default function MarcoPage() {
   const rotateRight = () => setRotation(prev => prev + 10)
 
   return (
-    <div className="flex flex-col items-center gap-4 p-6">
+    <div className={`flex flex-col items-center gap-4 p-6 min-h-screen transition-colors duration-300 ${
+    darkMode
+      ? "bg-gray-900 text-white"
+      : "bg-white text-black"
+    }`}>
+    <button
+  onClick={() => setDarkMode(!darkMode)}
+  className="px-4 py-2 rounded bg-gray-800 text-white hover:opacity-80 transition"
+>
+  {darkMode ? "Modo Claro ☀️" : "Modo Oscuro 🌙"}
+</button>
 
       <h1 className="text-2xl font-bold capitalize">
         Marco: {marco}
@@ -76,7 +108,7 @@ export default function MarcoPage() {
 
         <button
         onClick={() => fileInputRef.current.click()}
-        className="bg-black text-white px-6 py-2 rounded hover:bg-gray-800 transition"
+        className="bg-[#00d8ff] text-white px-6 py-2 rounded hover:bg-gray-800 transition"
         >
         {image ? "Subir otra foto" : "Subir foto"}
         </button>
@@ -113,41 +145,47 @@ export default function MarcoPage() {
         </button>
 
       </div>
+      <div className={`p-2 rounded-2xl shadow-xl transition-all duration-300 ${
+        darkMode
+  ? "bg-gray-800 border border-cyan-500/40 shadow-black/40"
+  : "bg-white border border-gray-200 shadow-gray-300"
+        }`}>
+        <Stage width={stageSize} height={stageSize} ref={stageRef}>
+            <Layer>
 
-      <Stage width={800} height={800} ref={stageRef}>
-        <Layer>
+            {image && (
+                <KonvaImage
+                image={image}
+                draggable
+                x={position.x}
+                y={position.y}
+                offsetX={image.width / 2}
+                offsetY={image.height / 2}
+                scaleX={scale}
+                scaleY={scale}
+                rotation={rotation}
+                onDragEnd={(e) => {
+                    setPosition({
+                    x: e.target.x(),
+                    y: e.target.y()
+                    })
+                }}
+                />
+            )}
 
-          {image && (
-            <KonvaImage
-              image={image}
-              draggable
-              x={position.x}
-              y={position.y}
-              offsetX={image.width / 2}
-              offsetY={image.height / 2}
-              scaleX={scale}
-              scaleY={scale}
-              rotation={rotation}
-              onDragEnd={(e) => {
-                setPosition({
-                  x: e.target.x(),
-                  y: e.target.y()
-                })
-              }}
-            />
-          )}
+            {frame && (
+                <KonvaImage
+                image={frame}
+                listening={false}
+                width={stageSize}
+                height={stageSize}
+                />
+            )}
 
-          {frame && (
-            <KonvaImage
-              image={frame}
-              listening={false}
-              width={800}
-              height={800}
-            />
-          )}
-
-        </Layer>
-      </Stage>
+            </Layer>
+        </Stage>
+      </div>
+      
 
       <button
         onClick={downloadImage}
