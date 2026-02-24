@@ -27,7 +27,8 @@ export default function MarcoPage() {
   const [rotation, setRotation] = useState(0)
 
 
-  const [stageSize, setStageSize] = useState(800)
+//   const [stageSize, setStageSize] = useState(800)
+  const [stageSize, setStageSize] = useState(null)
 
   const [position, setPosition] = useState({ x: 400, y: 400 })
   const [previewOpen, setPreviewOpen] = useState(false)
@@ -178,6 +179,7 @@ export default function MarcoPage() {
                 className="w-full bg-[#00d8ff]"
             />
         </div>
+        {stageSize &&
         <Stage width={stageSize} height={stageSize} ref={stageRef}>
             <Layer>
 
@@ -219,7 +221,7 @@ export default function MarcoPage() {
             )}
 
             </Layer>
-        </Stage>
+        </Stage>}
       </div>
       
       <div className="flex gap-3">
