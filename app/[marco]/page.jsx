@@ -96,7 +96,7 @@ export default function MarcoPage() {
   const rotateRight = () => setRotation(prev => prev + 10)
 
   return (
-    <div className={`flex flex-col items-center gap-4 p-6 min-h-screen transition-colors duration-300 ${
+    <div className={`flex flex-col items-center gap-4 p-6 min-h-screen transition-colors duration-300 overflow-x-hidden ${
     darkMode
       ? "bg-gray-900 text-white"
       : "bg-white text-black"
