@@ -30,7 +30,11 @@ export default function MarcoPage() {
   const [stageSize, setStageSize] = useState(800)
 
   const [position, setPosition] = useState({ x: 400, y: 400 })
+  const [previewOpen, setPreviewOpen] = useState(false)
+  const [previewImage, setPreviewImage] = useState(null)
+  //imagen alta calidad
 
+  const [downloading, setDownloading] = useState(false)
 
   // responsive telefono
   useEffect(() => {
@@ -59,6 +63,11 @@ export default function MarcoPage() {
     }
   }, [userImage])
 
+  const handlePreview = () => {
+    const uri = stageRef.current.toDataURL({ pixelRatio: 2 })
+    setPreviewImage(uri)
+    setPreviewOpen(true)
+  }
   const handleUpload = (e) => {
     const file = e.target.files[0]
     const reader = new FileReader()
@@ -67,13 +76,17 @@ export default function MarcoPage() {
   }
 
   const downloadImage = () => {
-    const uri = stageRef.current.toDataURL()
-    const link = document.createElement("a")
-    // link.download = `${marco}.png`
-    link.download = "FotoConMarco_AlianzaGenteNueva.png"
-    link.href = uri
-    link.click()
-  }
+    setDownloading(true)
+
+    setTimeout(() => {
+        const uri = stageRef.current.toDataURL({ pixelRatio: 3 }) // HD
+        const link = document.createElement("a")
+        link.download = "FotoConMarco_AlianzaGenteNueva.png"
+        link.href = uri
+        link.click()
+        setDownloading(false)
+    }, 800)
+    }
 
   // CONTROLES para zoom y rotate
   const zoomIn = () => setScale(prev => prev + 0.1)
@@ -95,7 +108,7 @@ export default function MarcoPage() {
 </button>
 
       <h1 className="text-2xl font-bold capitalize">
-        Marco: {marco}
+        Mi Voto es por Ayllon
       </h1>
 
       <input
@@ -150,6 +163,21 @@ export default function MarcoPage() {
   ? "bg-gray-800 border border-cyan-500/40 shadow-black/40"
   : "bg-white border border-gray-200 shadow-gray-300"
         }`}>
+        <div className="flex flex-col items-center gap-2 w-64 mx-auto">
+            <label className="text-sm font-medium">
+                Zoom: {(scale * 100).toFixed(0)}%
+            </label>
+
+            <input
+                type="range"
+                min="0.2"
+                max="3"
+                step="0.1"
+                value={scale}
+                onChange={(e) => setScale(Number(e.target.value))}
+                className="w-full bg-[#00d8ff]"
+            />
+        </div>
         <Stage width={stageSize} height={stageSize} ref={stageRef}>
             <Layer>
 
@@ -164,6 +192,14 @@ export default function MarcoPage() {
                 scaleX={scale}
                 scaleY={scale}
                 rotation={rotation}
+                dragBoundFunc={(pos) => {
+                    const limit = stageSize / 2
+
+                    return {
+                    x: Math.max(0, Math.min(stageSize, pos.x)),
+                    y: Math.max(0, Math.min(stageSize, pos.y)),
+                    }
+                }}
                 onDragEnd={(e) => {
                     setPosition({
                     x: e.target.x(),
@@ -186,18 +222,45 @@ export default function MarcoPage() {
         </Stage>
       </div>
       
-
-      <button
-        onClick={downloadImage}
-        disabled={!image}
-        className={`px-6 py-2 rounded text-white ${
-            image
-            ? "bg-blue-600 hover:bg-blue-700"
-            : "bg-gray-400 cursor-not-allowed"
-        }`}
-        >
-        Descargar
-      </button>
+      <div className="flex gap-3">
+            <button
+                onClick={downloadImage}
+                disabled={!image || downloading}
+                className={`px-6 py-2 rounded text-white transition-all duration-300 ${
+                    downloading
+                    ? "bg-cyan-400 animate-pulse"
+                    : image
+                    ? "bg-green-400 hover:scale-105 hover:bg-green-600"
+                    : "bg-gray-400 cursor-not-allowed"
+                }`}
+                >
+                {downloading ? "Descargando..." : "Descargar"}
+            </button>
+            <button
+                onClick={handlePreview}
+                disabled={!image}
+                className="px-6 py-2 rounded bg-[#00d8ff] text-white hover:scale-105 transition cursor-pointer">
+                Previsualizar
+            </button>
+            {previewOpen && (
+            <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+                <div className="bg-white p-4 rounded-2xl shadow-2xl max-w-md">
+                {/* eslint-disable-next-line @next/next/no-img-element */}  
+                <img src={previewImage} className="rounded-xl" alt="desc" />
+                <div className="flex justify-end mt-4">
+                    <button
+                    onClick={() => setPreviewOpen(false)}
+                    className="px-4 py-2 bg-gray-800 text-white rounded text-center hover:cursor-pointer"
+                    >
+                    Cerrar
+                    </button>
+                </div>
+                </div>
+            </div>
+            )}
+      </div>
+      
+      
 
     </div>
   )
