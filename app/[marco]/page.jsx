@@ -7,7 +7,7 @@ export default function MarcoPage() {
 
   const { marco } = useParams()
 
-  const marcosValidos = ["sistemas", "ingenieria", "promocion2026"]
+  const marcosValidos = ["sistemas", "tardio", "promocion2026"]
 
   if (!marcosValidos.includes(marco)) {
     notFound()
@@ -82,7 +82,7 @@ export default function MarcoPage() {
     setTimeout(() => {
         const uri = stageRef.current.toDataURL({ pixelRatio: 3 }) // HD
         const link = document.createElement("a")
-        link.download = "FotoConMarco_AlianzaGenteNueva.png"
+        link.download = "Frame_FatimaTardio.png"
         link.href = uri
         link.click()
         setDownloading(false)
@@ -108,8 +108,8 @@ export default function MarcoPage() {
   {darkMode ? "Modo Claro ☀️" : "Modo Oscuro 🌙"}
 </button>
 
-      <h1 className="text-2xl font-bold capitalize">
-        Mi Voto es por Ayllon
+      <h1 className="text-2xl font-bold">
+        Mi Voto es por {marco === "sistemas" ? "Luis Ayllon" : marco === "tardio" ? "Fátima Tardío" : ""}
       </h1>
 
       <input
