@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect } from "react"
 import { useParams, notFound } from "next/navigation"
 import { Stage, Layer, Image as KonvaImage } from "react-konva"
+import { Cardo } from "next/font/google"
 
 export default function MarcoPage() {
 
@@ -111,6 +112,16 @@ export default function MarcoPage() {
       <h1 className="text-2xl font-bold">
         Mi Voto es por {marco === "sistemas" ? "Luis Ayllon" : marco === "tardio" ? "Fátima Tardío" : ""}
       </h1>
+      {/* CARD COMISION */}
+      <div className="max-w-sm mx-auto bg-white dark:bg-white rounded-xl shadow-lg overflow-hidden border border-gray-800 dark:border-gray-700 p-6 transition-transform hover:scale-105 hover:shadow-2xl">
+        <h2 className="text-lg font-semibold text-black dark:text-dark mb-1">
+          SISTEMAS - TI
+        </h2>
+        {/* <p className="text-gray-500 dark:text-gray-300 text-sm">
+          
+        </p> */}
+      </div>
+      <br />
 
       <input
         type="file"
