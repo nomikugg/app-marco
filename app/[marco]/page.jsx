@@ -1,5 +1,6 @@
 "use client"
 import { useState, useRef, useEffect } from "react"
+import Image from "next/image"
 import { useParams, notFound } from "next/navigation"
 import Konva from "konva"
 import { Stage, Layer, Image as KonvaImage } from "react-konva"
@@ -120,14 +121,24 @@ export default function MarcoPage() {
       ? "bg-gray-900 text-white"
       : "bg-white text-black"
     }`}>
-    <button
-  onClick={() => setDarkMode(!darkMode)}
-  className="px-4 py-2 rounded bg-gray-800 text-white hover:opacity-80 transition"
->
-  {darkMode ? "Modo Claro ☀️" : "Modo Oscuro 🌙"}
-</button>
+    <div className="w-full flex justify-end mb-4">
+      <button
+        onClick={() => setDarkMode(!darkMode)}
+        className={`relative w-16 h-8 rounded-full transition-colors duration-500 ${
+          darkMode ? "bg-[#00d8ff]" : "bg-gray-300"
+        } flex items-center px-1`}
+      >
+        <div
+          className={`w-6 h-6 rounded-full bg-white shadow-lg transition-transform duration-500 ${
+            darkMode ? "translate-x-8" : "translate-x-0"
+          }`}
+        />
+        <span className="absolute left-2 text-xs font-bold text-gray-700">☀️</span>
+        <span className="absolute right-2 text-xs font-bold text-[#00d8ff]">🌙</span>
+      </button>
+    </div>
 
-      <h1 className="text-2xl font-bold">
+      <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-center">
         Mi Voto es por {marco === "sistemas" ? "Luis Ayllon" : marco === "tardio" ? "Fátima Tardío" : marco === "yotala" ? "Jhony Cervantes" : ""}
       </h1>
       {/* CARD COMISION */}
@@ -139,7 +150,6 @@ export default function MarcoPage() {
           
         </p> */}
       </div>
-      <br />
 
       <input
         type="file"
@@ -151,9 +161,10 @@ export default function MarcoPage() {
 
         <button
         onClick={() => fileInputRef.current.click()}
-        className="bg-[#00d8ff] text-white px-6 py-2 rounded hover:bg-gray-800 transition flex items-center gap-2"
+        className="bg-[#00d8ff] text-white px-8 py-3 rounded hover:bg-gray-800 transition flex items-center gap-2 text-lg font-semibold shadow-lg hover:shadow-xl"
         >
-        📷 {image ? "Subir otra foto" : "Subir foto"}
+        <Image src="/camera-solid-full.svg" alt="camera" width={24} height={24} className="invert brightness-200" />
+        {image ? "Subir otra foto" : "Subir foto"}
         </button>
 
       {/* 🔥 BOTONES */}
