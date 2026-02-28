@@ -8,7 +8,7 @@ export default function MarcoPage() {
 
   const { marco } = useParams()
 
-  const marcosValidos = ["sistemas", "tardio", "promocion2026"]
+  const marcosValidos = ["sistemas", "tardio", "yotala"]
 
   if (!marcosValidos.includes(marco)) {
     notFound()
@@ -83,7 +83,7 @@ export default function MarcoPage() {
     setTimeout(() => {
         const uri = stageRef.current.toDataURL({ pixelRatio: 3 }) // HD
         const link = document.createElement("a")
-        link.download = "Frame_FatimaTardio.png"
+        link.download = `Frame_${marco}.png`
         link.href = uri
         link.click()
         setDownloading(false)
@@ -110,7 +110,7 @@ export default function MarcoPage() {
 </button>
 
       <h1 className="text-2xl font-bold">
-        Mi Voto es por {marco === "sistemas" ? "Luis Ayllon" : marco === "tardio" ? "Fátima Tardío" : ""}
+        Mi Voto es por {marco === "sistemas" ? "Luis Ayllon" : marco === "tardio" ? "Fátima Tardío" : marco === "yotala" ? "Jhony Cervantes" : ""}
       </h1>
       {/* CARD COMISION */}
       <div className="max-w-sm mx-auto bg-white dark:bg-white rounded-xl shadow-lg overflow-hidden border border-gray-800 dark:border-gray-700 p-6 transition-transform hover:scale-105 hover:shadow-2xl">
