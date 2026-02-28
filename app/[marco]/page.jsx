@@ -1,8 +1,8 @@
 "use client"
 import { useState, useRef, useEffect } from "react"
 import { useParams, notFound } from "next/navigation"
+import Konva from "konva"
 import { Stage, Layer, Image as KonvaImage } from "react-konva"
-import { Cardo } from "next/font/google"
 
 export default function MarcoPage() {
 
@@ -22,6 +22,7 @@ export default function MarcoPage() {
   const fileInputRef = useRef(null)
   const [userImage, setUserImage] = useState(null)
   const [image, setImage] = useState(null)
+  const [bgImage, setBgImage] = useState(null)
   const [frame, setFrame] = useState(null)
 
   const [scale, setScale] = useState(1)
@@ -61,9 +62,26 @@ export default function MarcoPage() {
     if (userImage) {
       const img = new window.Image()
       img.src = userImage
-      img.onload = () => setImage(img)
+      img.onload = () => {
+        setImage(img)
+        // Reset zoom y posición al cargar nueva imagen
+        setScale(1)
+        setRotation(0)
+        setPosition({ x: stageSize / 2, y: stageSize / 2 })
+      }
+
+      // Copia para el fondo blur
+      const bg = new window.Image()
+      bg.src = userImage
+      bg.onload = () => setBgImage(bg)
+    } else {
+      // Reset images asynchronously to avoid cascading renders
+      Promise.resolve().then(() => {
+        setImage(null)
+        setBgImage(null)
+      })
     }
-  }, [userImage])
+  }, [userImage, stageSize])
 
   const handlePreview = () => {
     const uri = stageRef.current.toDataURL({ pixelRatio: 2 })
@@ -133,66 +151,95 @@ export default function MarcoPage() {
 
         <button
         onClick={() => fileInputRef.current.click()}
-        className="bg-[#00d8ff] text-white px-6 py-2 rounded hover:bg-gray-800 transition"
+        className="bg-[#00d8ff] text-white px-6 py-2 rounded hover:bg-gray-800 transition flex items-center gap-2"
         >
-        {image ? "Subir otra foto" : "Subir foto"}
+        📷 {image ? "Subir otra foto" : "Subir foto"}
         </button>
 
       {/* 🔥 BOTONES */}
-      <div className="flex gap-2 flex-wrap justify-center">
+      {image && (
+        <div className="flex gap-2 flex-wrap justify-center">
 
-        <button
-          onClick={zoomIn}
-          className="bg-green-600 text-white px-4 py-2 rounded"
-        >
-          Zoom +
-        </button>
+          <button
+            onClick={zoomIn}
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition"
+          >
+            Zoom +
+          </button>
 
-        <button
-          onClick={zoomOut}
-          className="bg-green-600 text-white px-4 py-2 rounded"
-        >
-          Zoom -
-        </button>
+          <button
+            onClick={zoomOut}
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition"
+          >
+            Zoom -
+          </button>
 
-        <button
-          onClick={rotateLeft}
-          className="bg-purple-600 text-white px-4 py-2 rounded"
-        >
-          ⟲ Rotar Izq
-        </button>
+          <button
+            onClick={rotateLeft}
+            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded transition"
+          >
+            ⟲ Rotar Izq
+          </button>
 
-        <button
-          onClick={rotateRight}
-          className="bg-purple-600 text-white px-4 py-2 rounded"
-        >
-          Rotar Der ⟳
-        </button>
+          <button
+            onClick={rotateRight}
+            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded transition"
+          >
+            Rotar Der ⟳
+          </button>
 
-      </div>
+        </div>
+      )}
       <div className={`p-2 rounded-2xl shadow-xl transition-all duration-300 ${
         darkMode
   ? "bg-gray-800 border border-cyan-500/40 shadow-black/40"
   : "bg-white border border-gray-200 shadow-gray-300"
         }`}>
-        <div className="flex flex-col items-center gap-2 w-64 mx-auto">
-            <label className="text-sm font-medium">
-                Zoom: {(scale * 100).toFixed(0)}%
-            </label>
+        {image && (
+          <div className="flex flex-col items-center gap-2 w-64 mx-auto">
+              <label className="text-sm font-medium">
+                  Zoom: {(scale * 100).toFixed(0)}%
+              </label>
 
-            <input
-                type="range"
-                min="0.2"
-                max="3"
-                step="0.1"
-                value={scale}
-                onChange={(e) => setScale(Number(e.target.value))}
-                className="w-full bg-[#00d8ff]"
-            />
-        </div>
+              <input
+                  type="range"
+                  min="0.2"
+                  max="3"
+                  step="0.1"
+                  value={scale}
+                  onChange={(e) => setScale(Number(e.target.value))}
+                  className="w-full bg-[#00d8ff]"
+              />
+          </div>
+        )}
         {stageSize &&
         <Stage width={stageSize} height={stageSize} ref={stageRef}>
             <Layer>
+
+            {/* BLUR CON CACHE*/}
+            {bgImage && stageSize && (
+            <KonvaImage
+              image={bgImage}
+              x={0}
+              y={0}
+              width={stageSize}
+              height={stageSize}
+              listening={false}
+              ref={(node) => {
+                if (node) {
+                  node.cache({
+                    x: 0,
+                    y: 0,
+                    width: stageSize,
+                    height: stageSize
+                  })
+                  node.getLayer().batchDraw()
+                }
+              }}
+              filters={[Konva.Filters.Blur]}
+              blurRadius={90}
+            />
+          )}
 
             {image && (
                 <KonvaImage
@@ -232,6 +279,7 @@ export default function MarcoPage() {
             )}
 
             </Layer>
+
         </Stage>}
       </div>
       
